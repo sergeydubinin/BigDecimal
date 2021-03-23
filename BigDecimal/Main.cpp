@@ -1,12 +1,10 @@
 #include <iostream>
-#include <iomanip>
-#include <cstdlib>
 
 #include "BigDecimal.h"
 
 int main(void)
 {
-	system("chcp 1251 && cls");
+	setlocale(LC_ALL, "rus");
 	BigDecimal n;
 	do
 	{
@@ -14,6 +12,9 @@ int main(void)
 		std::cout << " 1. Вывести значение числа на экран.\n";
 		std::cout << " 2. Умножить на 10.\n";
 		std::cout << " 3. Разделить на 10.\n";
+		std::cout << " 4. Вывести число в дополнительном коде.\n";
+		std::cout << " 5. Добавить к числу.\n";
+		std::cout << " 6. Вычесть из числа\n";
 		std::cout << " 7. Очистка консоли\n";
 		std::cout << "Иначе Выход\n";
 		char ch = std::cin.get();
@@ -49,9 +50,31 @@ int main(void)
 			n.div10();
 			break;
 		}
+		case '4':
+		{
+			std::cout << "Доп. код числа:" << ~n << '\n';
+			break;
+		}
+		case '5':
+		{
+			BigDecimal m;
+			std::cout << "Введите число для добавления:";
+			std::cin >> m;
+			n = n + m;
+			std::cin.get();
+			break;
+		}
+		case '6':
+		{
+			BigDecimal m;
+			std::cout << "Введите число для вычитания:";
+			std::cin >> m;
+			n = n - m;
+			std::cin.get();
+			break;
+		}
 		case '7':
 		{
-			//очистка консоли
 			system("cls");
 			break;
 		}

@@ -1,8 +1,9 @@
 #include <iostream>
+#include <string>
 
 using namespace std;
 
-const int N = 3;
+const int N = 47;
 
 class BigDecimal
 {
@@ -12,16 +13,19 @@ private:
 	char complement[N + 2];
 	void init();
 	void from_str(const char* str);
+	void changeSign();
 
 public:
 	BigDecimal();
 	BigDecimal(long number);
 	BigDecimal(const char* str);
-	int get_length() const { return length; };
-	std::string get_digits() const { return std::string(digits).substr(0, length); };
 	void mul10();
 	void div10();
 	friend std::ostream& operator<< (std::ostream& stream, const BigDecimal& number);
 	friend std::istream& operator>> (std::istream& stream, BigDecimal& number);
-	~BigDecimal();
+	bool isPositive() const;
+	bool isNegative() const;
+	const char* operator ~();
+	BigDecimal operator + (BigDecimal number);
+	BigDecimal operator - (BigDecimal number);
 };
