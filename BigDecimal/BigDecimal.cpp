@@ -192,7 +192,6 @@ const char* BigDecimal::operator ~ ()
 
 BigDecimal BigDecimal::operator + (BigDecimal number)
 {
-	//получаем дополнительный код
 	auto c1 = ~*this;
 	auto c2 = ~number;
 

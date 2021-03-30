@@ -1,89 +1,106 @@
 #include <iostream>
-
+#include <iomanip>
+#include <cstdlib>
 #include "BigDecimal.h"
 
-int main(void)
+int Menu()
+{
+	int variant;
+	std::cout << std::endl;
+	std::cout << "=====Выберите необходимое действие=====\n" << std::endl;
+	std::cout << "1. Получить дополнительный код числа\n"
+		<< "2. Умножить число на 10\n"
+		<< "3. Разделить число на 10\n"
+		<< "4. Сумма двух чисел\n"
+		<< "5. Разность двух чисел\n"
+		<< "6. Выход\n" << std::endl;
+	std::cout << "Ваш выбор: ";
+	std::cin >> variant;
+	std::cout << std::endl;
+	return variant;
+}
+
+int main()
 {
 	setlocale(LC_ALL, "rus");
-	BigDecimal n;
 	do
 	{
-		std::cout << " 0. Задать число.\n";
-		std::cout << " 1. Вывести значение числа на экран.\n";
-		std::cout << " 2. Умножить на 10.\n";
-		std::cout << " 3. Разделить на 10.\n";
-		std::cout << " 4. Вывести число в дополнительном коде.\n";
-		std::cout << " 5. Добавить к числу.\n";
-		std::cout << " 6. Вычесть из числа\n";
-		std::cout << " 7. Очистка консоли\n";
-		std::cout << "Иначе Выход\n";
-		char ch = std::cin.get();
-		std::cin.ignore(255, '\n');
-		switch (ch)
+	try
+	{
+		int variant = Menu();
+		switch (variant)
 		{
-		case '0':
+		case 1:
 		{
+			BigDecimal n;
 			std::cout << "Введите число:";
 			std::cin >> n;
 			std::cin.get();
+			std::cout << "Допополнительный код числа:" << ~n << '\n';
 			break;
 		}
-		case '1':
+		case 2:
 		{
-			std::cout << "Текущее значение:" << n << '\n';
+			BigDecimal n;
+			std::cout << "Введите число:";
+			std::cin >> n;
+			std::cin.get();
+			n.mul10();
+			std::cout << "Результат:" << n << '\n';
 			break;
 		}
-		case '2':
+		case 3:
 		{
-			try
-			{
-				n.mul10();
-			}
-			catch (std::exception& e)
-			{
-				std::cout << e.what() << '\n';
-			}
-			break;
-		}
-		case '3':
-		{
+			BigDecimal n;
+			std::cout << "Введите число:";
+			std::cin >> n;
+			std::cin.get();
 			n.div10();
+			std::cout << "Результат:" << n << '\n';
 			break;
 		}
-		case '4':
+		case 4:
 		{
-			std::cout << "Доп. код числа:" << ~n << '\n';
-			break;
-		}
-		case '5':
-		{
-			BigDecimal m;
-			std::cout << "Введите число для добавления:";
+			BigDecimal n, m, r;
+			std::cout << "Введите первое число:";
+			std::cin >> n;
+			std::cout << "Введите второе число:";
 			std::cin >> m;
-			n = n + m;
 			std::cin.get();
+			r = n + m;
+			std::cout << "Результат:" << r << '\n';
 			break;
 		}
-		case '6':
+		case 5:
 		{
-			BigDecimal m;
-			std::cout << "Введите число для вычитания:";
+			BigDecimal n, m, r;
+			std::cout << "Введите первое число:";
+			std::cin >> n;
+			std::cout << "Введите второе число:";
 			std::cin >> m;
-			n = n - m;
 			std::cin.get();
+			r = n - m;
+			std::cout << "Результат:" << r << '\n';
 			break;
 		}
-		case '7':
+		case 6:
 		{
-			system("cls");
+			std::cout << "Выход из программы..." << std::endl;
+			exit(EXIT_SUCCESS);
 			break;
 		}
 		default:
 		{
-			std::cin.get();
-			std::cin.get();
-			return 0;
+			std::cerr << "Вы выбрали неверный вариант" << std::endl;
+			exit(EXIT_FAILURE);
 		}
 		}
+	}
+	catch (const char* ex)
+	{
+		std::cerr << "Ошибка: " << ex << std::endl;
+	}
 	} while (true);
+	system("pause");
+	return 0;
 }
