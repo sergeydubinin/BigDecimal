@@ -8,14 +8,14 @@ int Menu()
 	int variant;
 	std::cout << std::endl;
 	std::cout << "=====Выберите необходимое действие=====\n" << std::endl;
-	std::cout << "1. Получить дополнительный код числа\n"
-		<< "2. Умножить число на 10\n"
-		<< "3. Разделить число на 10\n"
-		<< "4. Сумма двух чисел\n"
-		<< "5. Разность двух чисел\n"
-		<< "6. Выход\n" << std::endl;
+	std::cout << "1. Умножить число на 10\n"
+		<< "2. Разделить число на 10\n"
+		<< "3. Сумма двух чисел\n"
+		<< "4. Разность двух чисел\n"
+		<< "5. Выход\n" << std::endl;
 	std::cout << "Ваш выбор: ";
 	std::cin >> variant;
+	std::cin.get();
 	std::cout << std::endl;
 	return variant;
 }
@@ -35,8 +35,8 @@ int main()
 			BigDecimal n;
 			std::cout << "Введите число:";
 			std::cin >> n;
-			std::cin.get();
-			std::cout << "Допополнительный код числа:" << ~n << '\n';
+			n.mul10();
+			std::cout << "Результат:" << n << '\n';
 			break;
 		}
 		case 2:
@@ -44,19 +44,19 @@ int main()
 			BigDecimal n;
 			std::cout << "Введите число:";
 			std::cin >> n;
-			std::cin.get();
-			n.mul10();
+			n.div10();
 			std::cout << "Результат:" << n << '\n';
 			break;
 		}
 		case 3:
 		{
-			BigDecimal n;
-			std::cout << "Введите число:";
+			BigDecimal n, m, r;
+			std::cout << "Введите первое число:";
 			std::cin >> n;
-			std::cin.get();
-			n.div10();
-			std::cout << "Результат:" << n << '\n';
+			std::cout << "Введите второе число:";
+			std::cin >> m;
+			r = n + m;
+			std::cout << "Результат:" << r << '\n';
 			break;
 		}
 		case 4:
@@ -66,24 +66,11 @@ int main()
 			std::cin >> n;
 			std::cout << "Введите второе число:";
 			std::cin >> m;
-			std::cin.get();
-			r = n + m;
-			std::cout << "Результат:" << r << '\n';
-			break;
-		}
-		case 5:
-		{
-			BigDecimal n, m, r;
-			std::cout << "Введите первое число:";
-			std::cin >> n;
-			std::cout << "Введите второе число:";
-			std::cin >> m;
-			std::cin.get();
 			r = n - m;
 			std::cout << "Результат:" << r << '\n';
 			break;
 		}
-		case 6:
+		case 5:
 		{
 			std::cout << "Выход из программы..." << std::endl;
 			exit(EXIT_SUCCESS);

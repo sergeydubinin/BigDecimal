@@ -7,16 +7,15 @@ void BigDecimal::init()
 	for (int i = 0; i <= N; i++)
 	{
 		digits[i] = '0';
-		complement[i] = '0';
 	}
 }
 
-BigDecimal::BigDecimal() : length(1), digits{}, complement{}
+BigDecimal::BigDecimal() : length(1), digits{}
 {
 	init();
 }
 
-BigDecimal::BigDecimal(long number) : digits{}, complement{}
+BigDecimal::BigDecimal(long number) : digits{}
 {
 	init();
 	if (number == 0)
@@ -40,8 +39,9 @@ BigDecimal::BigDecimal(long number) : digits{}, complement{}
 	length = i;
 }
 
-void BigDecimal::from_str(const char* str)
+BigDecimal::BigDecimal(const char* str) : digits{}
 {
+	init();
 	int n = strlen(str);
 	int i = n - 1, j = 0;
 	if (strcmp(str, "0") == 0)
@@ -55,6 +55,11 @@ void BigDecimal::from_str(const char* str)
 		digits[N] = '9';
 		n--;
 	}
+	else if (n && str[0] == '+')
+	{
+		digits[N] = '0';
+		n--;
+	}
 
 	for (; i >= 0 && str[i] >= '0' && str[i] <= '9'; i--, j++)
 	{
@@ -66,16 +71,20 @@ void BigDecimal::from_str(const char* str)
 	{
 		throw "Invalid string passed to constructor";
 	}
-}
 
-BigDecimal::BigDecimal(const char* str) : digits{}, complement{}
-{
-	init();
-	from_str(str);
+	if ((str[0] == '-' && length > N + 1) || (str[0] == '+' && length > N + 1) || (length > N))
+	{
+		throw ("Number overflow");
+	}
 }
 
 void BigDecimal::mul10()
 {
+	if (!isPositive() && !isNegative())
+	{
+		return;
+	}
+
 	if (length == N)
 	{
 		throw "mul10 overflow";
@@ -91,17 +100,21 @@ void BigDecimal::mul10()
 
 void BigDecimal::div10()
 {
+	if (!isPositive() && !isNegative())
+	{
+		return;
+	}
 	for (int i = 0; i < length; i++)
 	{
 		digits[i] = digits[i + 1];
 	}
-	digits[length] = '\0';
+	digits[length] = '0';
 	length--;
 }
 
 std::ostream& operator<< (std::ostream& stream, const BigDecimal& number)
 {
-	if (number.digits[N] == '9')
+	if (number.digits[BigDecimal::N] == '9')
 	{
 		stream << '-';
 	}
@@ -115,9 +128,17 @@ std::ostream& operator<< (std::ostream& stream, const BigDecimal& number)
 
 std::istream& operator>> (std::istream& stream, BigDecimal& number)
 {
-	std::string str;
-	stream >> str;
-	number.from_str(str.data());
+	char name[BigDecimal::N + 2];
+	stream.getline(name, BigDecimal::N + 2);
+	if (stream.fail()) 
+	{
+		stream.clear();
+		stream.ignore(32767, '\n');
+		throw ("Wrong string");
+	}
+
+	BigDecimal num(name);
+	number = num;
 	return stream;
 }
 
@@ -141,8 +162,9 @@ bool BigDecimal::isNegative() const
 	return digits[N] == '9';
 }
 
-const char* BigDecimal::operator ~ ()
+char* BigDecimal::operator ~()const
 {
+	auto complement = new char[N + 2]();
 	if (isPositive())
 	{
 		for (int i = N; i > 0; i--)
@@ -186,28 +208,27 @@ const char* BigDecimal::operator ~ ()
 			}
 		}
 	}
-
 	return complement;
 }
 
-BigDecimal BigDecimal::operator + (BigDecimal number)
+BigDecimal operator + (BigDecimal cur, BigDecimal number)
 {
-	auto c1 = ~*this;
+	auto c1 = ~cur;
 	auto c2 = ~number;
 
-	char str[N + 2] = {};
-	char temp[N + 1] = {};
+	char str[BigDecimal::N + 2] = {};
+	char temp[BigDecimal::N + 1] = {};
 
 	// одинаковые знаки
-	if (digits[N] == number.digits[N])
+	if (cur.digits[BigDecimal::N] == number.digits[BigDecimal::N])
 	{
 		// положительные числа
-		if (isPositive() && number.isPositive())
+		if (cur.isPositive() && number.isPositive())
 		{
 			bool hasAdd = false;//показывает есть ли доп 1
-			for (int i = 0; i < N; i++)
+			for (int i = 0; i < BigDecimal::N; i++)
 			{
-				str[i] = c1[N - i] + c2[N - i] - '0' + hasAdd;
+				str[i] = c1[BigDecimal::N - i] + c2[BigDecimal::N - i] - '0' + hasAdd;
 				if (str[i] > '9')
 				{
 					str[i] = str[i] - 10;
@@ -220,9 +241,9 @@ BigDecimal BigDecimal::operator + (BigDecimal number)
 			}
 
 			//разворачиваем строку
-			for (int i = 0; i < N; i++)
+			for (int i = 0; i < BigDecimal::N; i++)
 			{
-				temp[i] = str[N - i - 1];
+				temp[i] = str[BigDecimal::N - i - 1];
 			}
 			auto ptr = temp;
 			//удаляем первые нули
@@ -232,12 +253,12 @@ BigDecimal BigDecimal::operator + (BigDecimal number)
 			}
 			return BigDecimal(ptr);
 		}
-		else if (isNegative() && number.isNegative()) // оба отрицательных
+		else if (cur.isNegative() && number.isNegative()) // оба отрицательных
 		{
 			bool hasAdd = false;
-			for (int i = 0; i < N; i++)
+			for (int i = 0; i < BigDecimal::N; i++)
 			{
-				str[i] = c1[N - i] + c2[N - i] - '0' + hasAdd;
+				str[i] = c1[BigDecimal::N - i] + c2[BigDecimal::N - i] - '0' + hasAdd;
 				if (str[i] > '9')
 				{
 					str[i] = str[i] - 10;
@@ -252,14 +273,14 @@ BigDecimal BigDecimal::operator + (BigDecimal number)
 			}
 
 			// получаем результат
-			for (int i = 0; i < N; i++)
+			for (int i = 0; i < BigDecimal::N; i++)
 			{
 				auto c = str[i];
-				temp[N - 1 - i] = '9' - c + '0' + hasAdd;
-				if (temp[N - 1 - i] > '9')
+				temp[BigDecimal::N - 1 - i] = '9' - c + '0' + hasAdd;
+				if (temp[BigDecimal::N - 1 - i] > '9')
 				{
 					hasAdd = true;
-					temp[N - 1 - i] = '0';
+					temp[BigDecimal::N - 1 - i] = '0';
 				}
 				else
 				{
@@ -271,14 +292,18 @@ BigDecimal BigDecimal::operator + (BigDecimal number)
 			{
 				++ptr;
 			}
+			delete[] c1;
+			delete[] c2;
 			return BigDecimal(std::string(std::string("-") + ptr).data());
 		}
 		else
 		{
+			delete[] c1;
+			delete[] c2;
 			//сложение с 0
-			if (isPositive())
+			if (cur.isPositive())
 			{
-				return *this;
+				return cur;
 			}
 			else
 			{
@@ -290,9 +315,9 @@ BigDecimal BigDecimal::operator + (BigDecimal number)
 	else // разные знаки
 	{
 		bool hasAdd = false;
-		for (int i = 0; i < N; i++)
+		for (int i = 0; i < BigDecimal::N; i++)
 		{
-			str[i] = c1[N - i] + c2[N - i] - '0' + hasAdd;
+			str[i] = c1[BigDecimal::N - i] + c2[BigDecimal::N - i] - '0' + hasAdd;
 			if (str[i] > '9')
 			{
 				str[i] = str[i] - 10;
@@ -307,28 +332,30 @@ BigDecimal BigDecimal::operator + (BigDecimal number)
 		if (hasAdd)
 		{
 			//разворачиваем строку
-			for (int i = 0; i < N; i++)
+			for (int i = 0; i < BigDecimal::N; i++)
 			{
-				temp[i] = str[N - i - 1];
+				temp[i] = str[BigDecimal::N - i - 1];
 			}
 			auto ptr = temp;
 			while (*ptr == '0')
 			{
 				++ptr;
 			}
+			delete[] c1;
+			delete[] c2;
 			return BigDecimal(ptr);
 		}
 		else //отрицательное число
 		{
 			hasAdd = true; //занимаем разряд
-			for (int i = 0; i < N; i++)
+			for (int i = 0; i < BigDecimal::N; i++)
 			{
 				auto c = str[i];
-				temp[N - 1 - i] = '9' - c + '0' + hasAdd;
-				if (temp[N - 1 - i] > '9')
+				temp[BigDecimal::N - 1 - i] = '9' - c + '0' + hasAdd;
+				if (temp[BigDecimal::N - 1 - i] > '9')
 				{
 					hasAdd = true;
-					temp[N - 1 - i] = '0';
+					temp[BigDecimal::N - 1 - i] = '0';
 				}
 				else
 				{
@@ -340,10 +367,13 @@ BigDecimal BigDecimal::operator + (BigDecimal number)
 			{
 				++ptr;
 			}
+			delete[] c1;
+			delete[] c2;
 			return BigDecimal(std::string(std::string("-") + ptr).data());
 		}
 	}
-
+	delete[] c1;
+	delete[] c2;
 	return BigDecimal(str);
 }
 
@@ -361,10 +391,105 @@ void BigDecimal::changeSign()
 	}
 }
 
-BigDecimal BigDecimal::operator - (BigDecimal number)
+BigDecimal operator - (BigDecimal cur, BigDecimal number)
 {
 	number.changeSign();
-	return *this + number;
+	return cur + number;
 }
 
+int BigDecimal::cmp(const BigDecimal& number) const
+{
+	if (digits[N] == number.digits[N])
+	{
+		if (isPositive() && number.isPositive() || isNegative() && number.isNegative())
+		{
+			if (N != number.N)
+			{
+				return (N > number.N) ? 1 : -1;
+			}
 
+			if (length != number.length)
+			{
+				return (length > number.length) ? 1 : -1;
+			}
+			auto ptr1 = digits;
+			auto ptr2 = number.digits;
+			while (*ptr1 == *ptr2 && *ptr1 != '\0')
+			{
+				++ptr1;
+				++ptr2;
+			}
+
+			if (*ptr1 == '\0')
+			{
+				return 0;
+			}
+
+			return (*ptr1 > * ptr2) ? 1 : -1;
+		}
+		else
+		{
+			if (isPositive())
+			{
+				return 1;
+			}
+			else if (isNegative())
+			{
+				return -1;
+			}
+			else
+			{
+				if (number.isPositive())
+				{
+					return -1;
+				}
+				else if (number.isNegative())
+				{
+					return 1;
+				}
+				return 0;
+			}
+		}
+	}
+	else // разные знаки
+	{
+		//отрицательное число меньше
+		if (isNegative())
+		{
+			return -1;
+		}
+
+		return 1;
+	}
+	return 0;
+}
+
+bool operator>(const BigDecimal& a, const BigDecimal& b)
+{
+	return a.cmp(b) > 0;
+}
+
+bool operator<(const BigDecimal& a, const BigDecimal& b)
+{
+	return a.cmp(b) < 0;
+}
+
+bool operator>=(const BigDecimal& a, const BigDecimal& b)
+{
+	return !(a < b);
+}
+
+bool operator<=(const BigDecimal& a, const BigDecimal& b)
+{
+	return !(a > b);
+}
+
+bool operator==(const BigDecimal& a, const BigDecimal& b)
+{
+	return a.cmp(b) == 0;
+}
+
+bool operator!=(const BigDecimal& a, const BigDecimal& b)
+{
+	return !(a == b);
+}

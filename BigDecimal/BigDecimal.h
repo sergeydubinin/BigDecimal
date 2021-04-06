@@ -3,17 +3,16 @@
 
 using namespace std;
 
-const int N = 47;
-
 class BigDecimal
 {
 private:
+	const static int N = 47;
 	int length;
 	char digits[N + 2];
-	char complement[N + 2];
 	void init();
-	void from_str(const char* str);
+	char* operator ~()const;
 	void changeSign();
+	int cmp(const BigDecimal& number) const;
 
 public:
 	BigDecimal();
@@ -25,7 +24,13 @@ public:
 	friend std::istream& operator>> (std::istream& stream, BigDecimal& number);
 	bool isPositive() const;
 	bool isNegative() const;
-	const char* operator ~();
-	BigDecimal operator + (BigDecimal number);
-	BigDecimal operator - (BigDecimal number);
+	friend BigDecimal operator + (BigDecimal cur, BigDecimal number);
+	friend BigDecimal operator - (BigDecimal cur, BigDecimal number);
+
+	friend bool operator> (const BigDecimal& a, const BigDecimal& b);
+	friend bool operator< (const BigDecimal& a, const BigDecimal& b);
+	friend bool operator>= (const BigDecimal& a, const BigDecimal& b);
+	friend bool operator<= (const BigDecimal& a, const BigDecimal& b);
+	friend bool operator== (const BigDecimal& a, const BigDecimal& b);
+	friend bool operator!= (const BigDecimal& a, const BigDecimal& b);
 };
