@@ -10,6 +10,7 @@ private:
 	int length;
 	char digits[N + 2];
 	void init();
+	void from_str(const char* str);
 	char* operator ~()const;
 	void changeSign();
 	int cmp(const BigDecimal& number) const;
@@ -24,8 +25,8 @@ public:
 	friend std::istream& operator>> (std::istream& stream, BigDecimal& number);
 	bool isPositive() const;
 	bool isNegative() const;
-	friend BigDecimal operator + (BigDecimal cur, BigDecimal number);
-	friend BigDecimal operator - (BigDecimal cur, BigDecimal number);
+	friend BigDecimal operator + (const BigDecimal& a, const BigDecimal& b);
+	friend BigDecimal operator - (const BigDecimal& a, const BigDecimal& b);
 
 	friend bool operator> (const BigDecimal& a, const BigDecimal& b);
 	friend bool operator< (const BigDecimal& a, const BigDecimal& b);

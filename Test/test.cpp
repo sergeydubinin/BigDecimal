@@ -1,35 +1,35 @@
 #include "pch.h"
 #include "..\BigDecimal\BigDecimal.cpp"
 
-TEST(BigDecConstructor, DefaultConstructor) 
+TEST(BigDecimalConstructor, DefaultConstructor)
 {
 	BigDecimal a;
 	ASSERT_EQ(a, 0);
 }
 
-TEST(BigDecConstructor, LongConstructor)
+TEST(BigDecimalConstructor, LongConstructor)
 {
 	BigDecimal a(12345);
-	BigDecimal b(-12345);
+	BigDecimal b(-5786);
 	ASSERT_EQ(a, 12345);
-	ASSERT_EQ(b, -12345);
+	ASSERT_EQ(b, -5786);
 }
 
-TEST(BigDecConstructor, StringConstructor)
+TEST(BigDecimalConstructor, StringConstructor)
 {
 	BigDecimal a("12345");
-	BigDecimal b("-12345");
-	BigDecimal c("+12345");
+	BigDecimal b("-8963");
+	BigDecimal c("+78696");
 	ASSERT_EQ(a, 12345);
-	ASSERT_EQ(b, -12345);
-	ASSERT_EQ(c, 12345);
-	ASSERT_ANY_THROW(BigDecimal("jdfhksdj"));
-	ASSERT_ANY_THROW(BigDecimal("-jdfhksdj"));
-	ASSERT_ANY_THROW(BigDecimal(""));
-	ASSERT_ANY_THROW(BigDecimal("111111111111111111111111111111111111111111111111111111111111111111111111111111"));
+	ASSERT_EQ(b, -8963);
+	ASSERT_EQ(c, 78696);
+	ASSERT_THROW(BigDecimal(""), invalid_argument);
+	ASSERT_THROW(BigDecimal("jdfhksdj"), invalid_argument);
+	ASSERT_THROW(BigDecimal("-dededede"), invalid_argument);
+	ASSERT_THROW(BigDecimal("111111111111111111111111111111111111111111111111111111111111111111111111111111"), logic_error);
 }
 
-TEST(BigDecMetods, Addition) 
+TEST(BigDecimalMetods, Addition)
 {
 	BigDecimal a(1234);
 	BigDecimal b(11111);
@@ -43,31 +43,69 @@ TEST(BigDecMetods, Addition)
 	a = 55123;
 	b = -55012;
 	ASSERT_EQ(a + b, 111);
+	a = "99999999999999999999999999999999999999999999999";
+	b = "123";
+	ASSERT_ANY_THROW(a + b);
 }
 
-TEST(BigDecMetods, Subtraction) 
+TEST(BigDecimalMetods, Subtraction)
 {
 	BigDecimal a(11111);
 	BigDecimal b(1111);
 	ASSERT_EQ(a - b, 10000);
 	a = -11111;
-	b = 1111;
-	ASSERT_EQ(a - b, -12222);
-	a = -11111;
-	b = -1111;
-	ASSERT_EQ(a - b, -10000);
+	b = 1456;
+	ASSERT_EQ(a - b, -12567);
+	a = -58796;
+	b = -2569;
+	ASSERT_EQ(a - b, -56227);
+	a = "99999999999999999999999999999999999999999999999";
+	b = "-1458";
+	ASSERT_ANY_THROW(a - b);
 }
 
-TEST(BigDecMetods, Mul10)
+TEST(BigDecimalMetods, Mul10)
 {
 	BigDecimal a(1234);
 	a.mul10();
 	ASSERT_EQ(a, 12340);
+	BigDecimal b("0");
+	b.mul10();
+	ASSERT_EQ(b, 0);
+	BigDecimal c("99999999999999999999999999999999999999999999999");
+	ASSERT_THROW(c.mul10(), logic_error);
 }
 
-TEST(BigDecMetods, Div10) 
+TEST(BigDecimalMetods, Div10)
 {
 	BigDecimal a(1234);
 	a.div10();
 	ASSERT_EQ(a, 123);
+	BigDecimal b("0");
+	b.div10();
+	ASSERT_EQ(b, 0);
+}
+
+TEST(IOMetods, Input)
+{
+	stringstream ss;
+	ss << "12345\n";
+	BigDecimal a;
+	ss >> a;
+	ASSERT_EQ(a, 12345);
+	ss << "-12345\n";
+	ss >> a;
+	ASSERT_EQ(a, -12345);
+}
+
+TEST(IOMetods, Output)
+{
+	stringstream ss;
+	BigDecimal a(12345);
+	ss << a;
+	ASSERT_EQ(ss.str(), "12345");
+	ss.str(string());
+	a = -12345;
+	ss << a;
+	ASSERT_EQ(ss.str(), "-12345");
 }

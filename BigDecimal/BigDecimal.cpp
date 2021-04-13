@@ -39,9 +39,8 @@ BigDecimal::BigDecimal(long number) : digits{}
 	length = i;
 }
 
-BigDecimal::BigDecimal(const char* str) : digits{}
+void BigDecimal::from_str(const char* str)
 {
-	init();
 	int n = strlen(str);
 	int i = n - 1, j = 0;
 	if (strcmp(str, "0") == 0)
@@ -69,13 +68,19 @@ BigDecimal::BigDecimal(const char* str) : digits{}
 
 	if (length == 0 || length != n)
 	{
-		throw "Invalid string passed to constructor";
+		throw invalid_argument ("Invalid string passed to constructor");
 	}
 
 	if ((str[0] == '-' && length > N + 1) || (str[0] == '+' && length > N + 1) || (length > N))
 	{
-		throw ("Number overflow");
+		throw logic_error ("Number overflow");
 	}
+}
+
+BigDecimal::BigDecimal(const char* str) : digits{}
+{
+	init();
+	from_str(str);
 }
 
 void BigDecimal::mul10()
@@ -87,7 +92,7 @@ void BigDecimal::mul10()
 
 	if (length == N)
 	{
-		throw "mul10 overflow";
+		throw logic_error ("mul10 overflow");
 	}
 
 	for (int i = length; i > 0; i--)
@@ -128,17 +133,17 @@ std::ostream& operator<< (std::ostream& stream, const BigDecimal& number)
 
 std::istream& operator>> (std::istream& stream, BigDecimal& number)
 {
-	char name[BigDecimal::N + 2];
-	stream.getline(name, BigDecimal::N + 2);
-	if (stream.fail()) 
+	std::string str;
+	stream >> str;
+	try
 	{
-		stream.clear();
-		stream.ignore(32767, '\n');
-		throw ("Wrong string");
+		number.from_str(str.data());
 	}
-
-	BigDecimal num(name);
-	number = num;
+	catch (std::exception& error)
+	{
+		stream.setstate(std::ios::failbit);
+		return stream;
+	}
 	return stream;
 }
 
@@ -211,8 +216,12 @@ char* BigDecimal::operator ~()const
 	return complement;
 }
 
-BigDecimal operator + (BigDecimal cur, BigDecimal number)
+BigDecimal operator + (const BigDecimal& a, const BigDecimal& b)
 {
+	auto cur = a;
+	auto number = b;
+
+	//получаем дополнительный код
 	auto c1 = ~cur;
 	auto c2 = ~number;
 
@@ -240,6 +249,13 @@ BigDecimal operator + (BigDecimal cur, BigDecimal number)
 				}
 			}
 
+			if ((cur.length == BigDecimal::N || number.length == BigDecimal::N)
+				&& cur.digits[BigDecimal::N] == number.digits[BigDecimal::N]
+				&& hasAdd)
+			{
+				throw ("+ overflow");
+			}
+
 			//разворачиваем строку
 			for (int i = 0; i < BigDecimal::N; i++)
 			{
@@ -251,6 +267,8 @@ BigDecimal operator + (BigDecimal cur, BigDecimal number)
 			{
 				++ptr;
 			}
+			delete[] c1;
+			delete[] c2;
 			return BigDecimal(ptr);
 		}
 		else if (cur.isNegative() && number.isNegative()) // оба отрицательных
@@ -287,6 +305,7 @@ BigDecimal operator + (BigDecimal cur, BigDecimal number)
 					hasAdd = false;
 				}
 			}
+
 			auto ptr = temp;
 			while (*ptr == '0')
 			{
@@ -328,6 +347,7 @@ BigDecimal operator + (BigDecimal cur, BigDecimal number)
 				hasAdd = false;
 			}
 		}
+
 		//результат - положительное число
 		if (hasAdd)
 		{
@@ -391,10 +411,11 @@ void BigDecimal::changeSign()
 	}
 }
 
-BigDecimal operator - (BigDecimal cur, BigDecimal number)
+BigDecimal operator - (const BigDecimal& a, const BigDecimal& b)
 {
+	BigDecimal number = b;
 	number.changeSign();
-	return cur + number;
+	return a + number;
 }
 
 int BigDecimal::cmp(const BigDecimal& number) const
