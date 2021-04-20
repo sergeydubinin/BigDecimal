@@ -10,9 +10,9 @@ TEST(BigDecimalConstructor, DefaultConstructor)
 TEST(BigDecimalConstructor, LongConstructor)
 {
 	BigDecimal a(12345);
+	ASSERT_EQ(a, "12345");
 	BigDecimal b(-5786);
-	ASSERT_EQ(a, 12345);
-	ASSERT_EQ(b, -5786);
+	ASSERT_EQ(b, "-5786");
 }
 
 TEST(BigDecimalConstructor, StringConstructor)
@@ -45,7 +45,16 @@ TEST(BigDecimalMetods, Addition)
 	ASSERT_EQ(a + b, 111);
 	a = "99999999999999999999999999999999999999999999999";
 	b = "123";
-	ASSERT_ANY_THROW(a + b);
+	ASSERT_THROW(a + b, logic_error);
+	a = "-99999999999999999999999999999999999999999999999";
+	b = "-785654";
+	ASSERT_THROW(a + b, logic_error);
+	a = "456978";
+	b = "0";
+	ASSERT_EQ(a + b, 456978);
+	a = "325689";
+	b = "-325689";
+	ASSERT_EQ(a + b, 0);
 }
 
 TEST(BigDecimalMetods, Subtraction)
@@ -61,7 +70,16 @@ TEST(BigDecimalMetods, Subtraction)
 	ASSERT_EQ(a - b, -56227);
 	a = "99999999999999999999999999999999999999999999999";
 	b = "-1458";
-	ASSERT_ANY_THROW(a - b);
+	ASSERT_THROW(a - b, logic_error);
+	a = "-99999999999999999999999999999999999999999999999";
+	b = "565984";
+	ASSERT_THROW(a - b, logic_error);
+	a = "23568";
+	b = "0";
+	ASSERT_EQ(a - b, 23568);
+	a = "78638941";
+	b = "78638941";
+	ASSERT_EQ(a - b, 0);
 }
 
 TEST(BigDecimalMetods, Mul10)
@@ -72,8 +90,11 @@ TEST(BigDecimalMetods, Mul10)
 	BigDecimal b("0");
 	b.mul10();
 	ASSERT_EQ(b, 0);
-	BigDecimal c("99999999999999999999999999999999999999999999999");
-	ASSERT_THROW(c.mul10(), logic_error);
+	BigDecimal c("-8978");
+	c.mul10();
+	ASSERT_EQ(c, -89780);
+	BigDecimal d("99999999999999999999999999999999999999999999999");
+	ASSERT_THROW(d.mul10(), logic_error);
 }
 
 TEST(BigDecimalMetods, Div10)
@@ -84,6 +105,9 @@ TEST(BigDecimalMetods, Div10)
 	BigDecimal b("0");
 	b.div10();
 	ASSERT_EQ(b, 0);
+	BigDecimal c("-65874");
+	c.div10();
+	ASSERT_EQ(c, -6587);
 }
 
 TEST(IOMetods, Input)
@@ -96,6 +120,9 @@ TEST(IOMetods, Input)
 	ss << "-12345\n";
 	ss >> a;
 	ASSERT_EQ(a, -12345);
+	ss << "rtrtttfs\n";
+	ss >> a;
+	ASSERT_TRUE(ss.fail());
 }
 
 TEST(IOMetods, Output)

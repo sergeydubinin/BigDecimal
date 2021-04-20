@@ -133,11 +133,12 @@ std::ostream& operator<< (std::ostream& stream, const BigDecimal& number)
 
 std::istream& operator>> (std::istream& stream, BigDecimal& number)
 {
-	std::string str;
-	stream >> str;
+	char name[BigDecimal::N + 2];
+	stream.getline(name, BigDecimal::N + 2);
 	try
 	{
-		number.from_str(str.data());
+		BigDecimal a (name);
+		number = a;
 	}
 	catch (std::exception& error)
 	{
@@ -253,7 +254,7 @@ BigDecimal operator + (const BigDecimal& a, const BigDecimal& b)
 				&& cur.digits[BigDecimal::N] == number.digits[BigDecimal::N]
 				&& hasAdd)
 			{
-				throw ("+ overflow");
+				throw logic_error ("+ overflow");
 			}
 
 			//разворачиваем строку
@@ -288,6 +289,13 @@ BigDecimal operator + (const BigDecimal& a, const BigDecimal& b)
 				}
 
 				temp[i] = '0';
+			}
+
+			if ((cur.length == BigDecimal::N || number.length == BigDecimal::N)
+				&& cur.digits[BigDecimal::N] == number.digits[BigDecimal::N]
+				&& !hasAdd)
+			{
+				throw logic_error ("+ overflow");
 			}
 
 			// получаем результат
@@ -346,6 +354,23 @@ BigDecimal operator + (const BigDecimal& a, const BigDecimal& b)
 			{
 				hasAdd = false;
 			}
+		}
+		//результат - 0
+		bool isZero = true;
+		for (int i = 0; i < BigDecimal::N; i++)
+		{
+			if (str[i] != '0')
+			{
+				isZero = false;
+				break;
+			}
+		}
+
+		if (isZero)
+		{
+			delete[] c1;
+			delete[] c2;
+			return BigDecimal();
 		}
 
 		//результат - положительное число
