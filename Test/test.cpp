@@ -13,6 +13,9 @@ TEST(BigDecimalConstructor, LongConstructor)
 	ASSERT_EQ(a, "12345");
 	BigDecimal b(-5786);
 	ASSERT_EQ(b, "-5786");
+	int zero = -0;
+	BigDecimal c(zero);
+	ASSERT_EQ(c, "0");
 }
 
 TEST(BigDecimalConstructor, StringConstructor)
@@ -20,12 +23,15 @@ TEST(BigDecimalConstructor, StringConstructor)
 	BigDecimal a("12345");
 	BigDecimal b("-8963");
 	BigDecimal c("+78696");
+	BigDecimal d("-0");
 	ASSERT_EQ(a, 12345);
 	ASSERT_EQ(b, -8963);
 	ASSERT_EQ(c, 78696);
+	ASSERT_EQ(d, 0);
 	ASSERT_THROW(BigDecimal(""), invalid_argument);
 	ASSERT_THROW(BigDecimal("jdfhksdj"), invalid_argument);
 	ASSERT_THROW(BigDecimal("-dededede"), invalid_argument);
+	ASSERT_THROW(BigDecimal("-d145eded586ede"), invalid_argument);
 	ASSERT_THROW(BigDecimal("111111111111111111111111111111111111111111111111111111111111111111111111111111"), logic_error);
 }
 
@@ -117,9 +123,11 @@ TEST(IOMetods, Input)
 	BigDecimal a;
 	ss >> a;
 	ASSERT_EQ(a, 12345);
+	ASSERT_FALSE(ss.fail());
 	ss << "-12345\n";
 	ss >> a;
 	ASSERT_EQ(a, -12345);
+	ASSERT_FALSE(ss.fail());
 	ss << "rtrtttfs\n";
 	ss >> a;
 	ASSERT_TRUE(ss.fail());
