@@ -58,6 +58,9 @@ TEST(BigDecimalMetods, Addition)
 	a = "456978";
 	b = "0";
 	ASSERT_EQ(a + b, 456978);
+	a = "-546454";
+	b = "0";
+	ASSERT_EQ(a + b, -546454);
 	a = "325689";
 	b = "-325689";
 	ASSERT_EQ(a + b, 0);
@@ -83,6 +86,9 @@ TEST(BigDecimalMetods, Subtraction)
 	a = "23568";
 	b = "0";
 	ASSERT_EQ(a - b, 23568);
+	a = "-898926";
+	b = "0";
+	ASSERT_EQ(a - b, -898926);
 	a = "78638941";
 	b = "78638941";
 	ASSERT_EQ(a - b, 0);
